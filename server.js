@@ -11,7 +11,7 @@ if (!fs.existsSync(customTempDir)) {
     fs.mkdirSync(customTempDir);
 }
 // Serve static files from the "public" folder
-app.use(express.static(path.join(__dirname, '../public_html')));
+app.use(express.static(path.join(__dirname, './public_html')));
 // Increase the request size limit (adjust the limit based on your needs)
 app.use(bodyParser.json({ limit: '50mb' }));
 app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
@@ -24,7 +24,7 @@ app.post('/synthesize', async (req, res) => {
         return res.status(400).json({ error: 'Arabic input and library must be provided.' });
     }
 
-    const audioLibraryPath = path.resolve(`../public_html/${library}`);
+    const audioLibraryPath = path.resolve(`./public_html/${library}`);
     const tempDir = fs.mkdtempSync(path.join(customTempDir, 'audio-concat-'));
     const outputFileName = library === 'Audio Aziz' ? 'outputA.mp3' : 'outputB.mp3';
     const finalOutputPath = path.join(tempDir, outputFileName);
