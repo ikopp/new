@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>فرقان الهدى : 4</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <a href="./index.html" class="home-button">
+        <svg class="home-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+        </svg>
+        <span class="button-text">Home</span>
+    </a>
+    <canvas id="matrix-canvas"></canvas>
+    <div class="content">
+        <p style="text-align:center">
+            <span style="color:#9b59b6; font-size:22px; background-color:#f1c40f">&nbsp;</span>
+            <span style="color:#2c3e50; font-size:22px; background-color:#f1c40f">عروج فكري روحي</span>
+            <span style="color:#9b59b6; font-size:22px; background-color:#f1c40f">&nbsp;</span>
+        </p>
+        <table id="table1">
+            <thead>
+                <tr>
+                    <th class="one">1</th>
+                    <th class="two">1</th>
+                    <th class="one">1</th>
+                    <th class="two">1</th>
+                    <th class="one">3</th>
+                    <th class="two">2</th>
+                    <th class="one">2</th>
+                    <th class="fred">عدد تكرارها</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <th class="one">س</th>
+                    <th class="two">ي</th>
+                    <th class="one">ح</th>
+                    <th class="two">ص</th>
+                    <th class="one">م</th>
+                    <th class="two">ل</th>
+                    <th class="one">أ</th>
+                    <th class="fred">حروف الفرقان</th>
+                </tr>
+            </tbody>
+        </table>
+        <br><br>
+        <div class="centre"><span class="span1">المجموعة الرابعة ( 4 )</span></div>
+        <br>
+        <div class="centre"><span class="span2">المفتاح : ألمص حم يس ألم</span></div>
+        <br>
+        <div class="button-container">
+            <button class="openModalBtn" data-key="الأعراف">الأعراف ( ألمص )</button>
+            <button class="openModalBtn" data-key="التكوير">التكوير</button>
+            <button class="openModalBtn" data-key="النازعات">النازعات</button>
+            <button class="openModalBtn" data-key="المعارج">المعارج</button>
+            <button class="openModalBtn" data-key="النحل">النحل</button>
+            <button class="openModalBtn" data-key="التكاثر">التكاثر</button>
+            <button class="openModalBtn" data-key="النور">النور</button>
+            <button class="openModalBtn" data-key="عبس">عبس</button>
+            <button class="openModalBtn" data-key="النبأ">النبأ</button>
+            <button class="openModalBtn" data-key="الحاقة">الحاقة</button>
+            <button class="openModalBtn" data-key="الكهف">الكهف</button>
+            <button class="openModalBtn" data-key="الكافرون">الكافرون</button>
+            <button class="openModalBtn" data-key="الصف">الصف</button>
+            <button class="openModalBtn" data-key="فصلت">فصلت ( حم )</button>
+            <button class="openModalBtn" data-key="يس">يس ( يس )</button>
+            <button class="openModalBtn" data-key="الطارق">الطارق</button>
+            <button class="openModalBtn" data-key="المطففين">المطففين</button>
+            <button class="openModalBtn" data-key="الإنشقاق">الإنشقاق</button>
+            <button class="openModalBtn" data-key="الروم">الروم ( ألم)</button>
+            <button class="openModalBtn" data-key="القارعة">القارعة</button>
+            <button class="openModalBtn" data-key="الحشر">الحشر</button>
+            <button class="openModalBtn" data-key="الزمر">الزمر</button>
+        </div>
+        <div id="myModal" class="modal">
+            <div class="modal-content">
+                <p id="modalText"></p>
+                <div class="modal-buttons">
+                    <button class="btn close-btn" id="closeModalBtn">رجوع</button>
+                    <button class="btn copy-btn" id="copyTextBtn">نسخ</button>
+                </div>
+            </div>
+        </div>
+        <br><br>
+        <textarea name="text" id="inputText" required></textarea>
+        <button id="printResultBtn">طباعة النتائج</button>
+        <br><br>
+        <button id="audioBtn1" onclick="generateAudio('Audio Aziz')">الاستماع بصوت عزيز</button>
+    <button id="audioBtn2" onclick="generateAudio('Audio Zakarya')">الاستماع بصوت زكريا</button>
+        <br><br>
+        <audio id="audioPlayer" controls></audio>
+        <p id="status"></p>
+        <div id="output"></div>
+    </div>
+	
+<script src="script4.js"></script>
+</body>
+</html>

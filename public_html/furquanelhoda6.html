@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>فرقان الهدى : 6</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    
+    <!--  svg home -->
+   
+    <a href="./index.html" class="home-button">
+        <svg class="home-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+        </svg>
+        <span class="button-text">Home</span>
+    </a>
+    <!-- End svg home -->
+    <canvas id="matrix-canvas"></canvas>
+    <div class="content">
+    <p style="text-align:center">
+        <span style="color:#9b59b6; font-size:22px; background-color:#f1c40f">&nbsp;</span>
+        <span style="color:#2c3e50; font-size:22px; background-color:#f1c40f">عروج فكري روحي</span>
+        <span style="color:#9b59b6; font-size:22px; background-color:#f1c40f">&nbsp;</span>
+    </p>
+    
+    <table id="table1">
+        <thead>
+            <tr>
+               
+                <th class="one">1 </th>
+                <th class="fred">عدد تكرارها</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+              
+                <th class="one">ص</th>
+                <th class="fred">حروف الفرقان</th>
+            </tr>
+           
+        </tbody>
+    </table>
+    <div class="centre"><span class="span1">المجموعة السادسة ( 6 ) </span></div>
+        <br>
+        <div class="centre"><span class="span2">المفتاح  :  ص     </span></div>
+       <br>
+        <div>
+
+        <div class="button-container">
+            
+            <button class="openModalBtn" data-key="ص">ص  ( ص )</button>
+            
+        </div>
+<div id="myModal" class="modal">
+        <div class="modal-content">
+			<p id="modalText"></p>
+            <div class="modal-buttons">
+            <button class="btn close-btn" id="closeModalBtn">رجوع</button>
+			<button class="btn copy-btn" id="copyTextBtn">نسخ</button>
+        </div>
+    </div>
+    
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+		    <br><br>
+    <textarea name="text" id="inputText"  oninput="analyzeText()" required></textarea>
+    <button onclick="printResult()">طباعة النتائج</button>
+    <br><br>
+    <button id="audioBtn1" onclick="generateAudio('Audio Aziz')">الاستماع بصوت عزيز</button>
+    <button id="audioBtn2" onclick="generateAudio('Audio Zakarya')">الاستماع بصوت زكريا</button>
+	<br><br>
+	<audio id="audioPlayer" controls></audio>
+    <div id="output"></div>
+
+ <script src="script6.js"></script>   
+</body>
+</html>
