@@ -312,7 +312,16 @@ function analyzeText() {
     });
 }
 
-
+// Optimize Highlight Text Function
+function highlightText1(inputText) {
+    const regex = /[ا|أ|إ|ئ|ؤ|ء|ى|آ|ل|م|ح|ع|س|ق|ط|ه|ر]/g;
+    return inputText.replace(regex, match => `<span class="highlight">${match}</span>`);
+}
+// Optimize Highlight Text Function
+function highlightText1d(inputText) {
+    const regex = /[ا|أ|إ|ئ|ؤ|ء|ى|آ|ل|م|ح|ع|س|ق|ط|ه|ر]/g;
+    return inputText.replace(regex, match => `<span class="highlight">${match}</span>`);
+}
 		
         function analyzeLined(line) {
             const words = line.split(' ');
