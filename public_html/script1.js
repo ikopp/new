@@ -1,54 +1,56 @@
- // Fetch button texts from JSON file
+ // Fetch button texts dynamically on button click
+const modal = document.getElementById('myModal');
+const closeModalBtn = document.getElementById('closeModalBtn');
+const modalText = document.getElementById('modalText');
+const openModalButtons = document.querySelectorAll('.openModalBtn');
+const copyTextBtn = document.getElementById('copyTextBtn');
+
+// Add event listeners to each button to load text and open the modal
+openModalButtons.forEach(button => {
+    button.addEventListener('click', () => {
+        const key = button.getAttribute('data-key'); // Get the button's data-key attribute
+
+        // Fetch the JSON data only when the button is clicked
         fetch('buttonTexts.json')
             .then(response => response.json())
             .then(buttonTexts => {
-                // Select all buttons
-                const buttons = document.querySelectorAll('.openModalBtn');
+                // Get the message based on the key
+                const message = buttonTexts[key];
 
-                // Assign texts dynamically based on data-key
-                buttons.forEach(button => {
-                    const key = button.getAttribute('data-key');
-                    button.setAttribute('data-message', buttonTexts[key]);
-
-                    
-                });
+                // Check if the message exists and display it in the modal
+                if (message) {
+                    modalText.textContent = message;
+                    modal.style.display = 'flex';
+                } else {
+                    alert('Message not found for this button.');
+                }
             })
-            .catch(error => console.error('Error fetching button texts:', error));
- // Get the modal and close button
-        const modal = document.getElementById('myModal');
-        const closeModalBtn = document.getElementById('closeModalBtn');
-        const modalText = document.getElementById('modalText');
-
-        // Get all buttons that open the modal
-        const openModalButtons = document.querySelectorAll('.openModalBtn');
-
-        // Add event listeners to each button to open the modal with the respective message
-        openModalButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                const message = button.getAttribute('data-message');
-                modalText.textContent = message;
-                modal.style.display = 'flex';
+            .catch(error => {
+                console.error('Error fetching button texts:', error);
+                alert('Failed to load the message.');
             });
-        });
+    });
+});
 
-        // Close the modal when the close button is clicked
-        closeModalBtn.addEventListener('click', () => {
-            modal.style.display = 'none';
-        });
-		// Copy text functionality
-        copyTextBtn.addEventListener('click', () => {
-            const textToCopy = modalText.textContent;
-            navigator.clipboard.writeText(textToCopy).catch(err => {
-                alert("Failed to copy text: " + err);
-            });
-        });
+// Close the modal when the close button is clicked
+closeModalBtn.addEventListener('click', () => {
+    modal.style.display = 'none';
+});
 
-        // Close the modal when clicking outside the modal content
-        window.addEventListener('click', (event) => {
-            if (event.target === modal) {
-                modal.style.display = 'none';
-            }
-        });
+// Copy text functionality
+copyTextBtn.addEventListener('click', () => {
+    const textToCopy = modalText.textContent;
+    navigator.clipboard.writeText(textToCopy).catch(err => {
+        alert('Failed to copy text: ' + err);
+    });
+});
+
+// Close the modal when clicking outside the modal content
+window.addEventListener('click', (event) => {
+    if (event.target === modal) {
+        modal.style.display = 'none';
+    }
+});
 
           // svg home
           const homeButton = document.querySelector('.home-button');
