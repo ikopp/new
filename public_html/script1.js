@@ -164,33 +164,35 @@
 		
         // Optimized Analyze Text Function
 function analyzeText() {
-	strippedText = '';
-	totalAnalysis = '';
+    strippedText = '';
+    totalAnalysis = '';
     const inputText = document.getElementById('inputText').value.trim();
     const outputDiv = document.getElementById('output');
     let linesHtml = '';
-
-    // Process text in batches
     const lines = inputText.split('\n');
+
+    // Pre-process all lines and store them in a single string
     lines.forEach((line, index) => {
         if (line.trim() !== '') {
             const highlightedLine = highlightText1(line);
-			const highlightedLine1 = highlightText(line);
+            const highlightedLine1 = highlightText(line);
             const analyzedLine = analyzeLine(line);
 
             linesHtml += `
-                <div class="input-line">القرآن: ${highlightedLine}</div>
-				<div class="input-line">القرآن: ${highlightedLine1}</div>
-                <div class="output-line">فرقان: ${analyzedLine}</div>
-                <button class="btn copy-btn" id="copyTextBtn-${index}">نسخ</button>
+                <div class="line-container">
+                    <div class="input-line">القرآن: ${highlightedLine}</div>
+                    <div class="input-line">القرآن: ${highlightedLine1}</div>
+                    <div class="output-line">فرقان: ${analyzedLine}</div>
+                    <button class="btn copy-btn" id="copyTextBtn-${index}" data-analysis="${analyzedLine.trim()}">نسخ</button>
+                </div>
             `;
-
             totalAnalysis += analyzedLine + ' ';
         }
     });
-	strippedText = totalAnalysis.replace(/<[^>]*>/g, '').trim();
 
-    // Batch update the DOM
+    strippedText = totalAnalysis.replace(/<[^>]*>/g, '').trim();
+
+    // Batch update the DOM with the pre-rendered HTML
     outputDiv.innerHTML = `
         <p><span style="font-size:24px; background-color:#f1c40f; color:#2c3e50">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; ألمر&nbsp; &nbsp; &nbsp;&nbsp;</span></p>
         ${linesHtml}
@@ -204,20 +206,23 @@ function analyzeText() {
                     <tr><th>${countWords(inputText)}</th><th>عدد الكلمات</th></tr>
                     <tr><th>${countAllChars(inputText)}</th><th>عدد جميع الحروف</th></tr>
                     <tr><th>${countSpecificChars(inputText).total}</th><th>عدد الحروف (أ، ل ، م ، ر )</th></tr>
-					<tr><th id="tasnimsaid3">${countSpecificChars(inputText).alif}</th><th>عدد حرف (أ)</th></tr>
-					<tr><th id="tasnimsaid4">${countSpecificChars(inputText).lam}</th><th>عدد حرف (ل)</th></tr>
-					<tr><th id="tasnimsaid5">${countSpecificChars(inputText).meem}</th><th>عدد حرف (م)</th></tr>
-					<tr><th id="tasnimsaid6">${countSpecificChars(inputText).raa}</th><th>عدد حرف (ر)</th></tr>
+                    <tr><th id="tasnimsaid3">${countSpecificChars(inputText).alif}</th><th>عدد حرف (أ)</th></tr>
+                    <tr><th id="tasnimsaid4">${countSpecificChars(inputText).lam}</th><th>عدد حرف (ل)</th></tr>
+                    <tr><th id="tasnimsaid5">${countSpecificChars(inputText).meem}</th><th>عدد حرف (م)</th></tr>
+                    <tr><th id="tasnimsaid6">${countSpecificChars(inputText).raa}</th><th>عدد حرف (ر)</th></tr>
                 </tbody>
             </table>
         </div>
     `;
 
-    // Attach event listeners for copy buttons
-    lines.forEach((_, index) => {
-        const button = document.getElementById(`copyTextBtn-${index}`);
-        button?.addEventListener('click', () => {
-            navigator.clipboard.writeText(totalAnalysis.trim());
+    // Add event listeners to copy buttons
+    const copyButtons = document.querySelectorAll('.copy-btn');
+    copyButtons.forEach((button) => {
+        button.addEventListener('click', () => {
+            const analysis = button.dataset.analysis;
+            navigator.clipboard.writeText(analysis).then(() => {
+                alert('Copied to clipboard!');
+            });
         });
     });
 }
