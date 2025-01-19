@@ -185,7 +185,7 @@ function analyzeText() {
                     <div class="input-line">القرآن: ${highlightedLine}</div>
                     <div class="input-line">القرآن: ${highlightedLine1}</div>
                     <div class="output-line">فرقان: ${analyzedLine}</div>
-                    <button class="btn copy-btn" id="copyTextBtn-${index}" data-analysis="${analyzedLine.trim()}">نسخ</button>
+                    <button class="btn copy-btn" id="copyTextBtn-${index}">نسخ</button>
                 </div>
             `;
             totalAnalysis += analyzedLine + ' ';
