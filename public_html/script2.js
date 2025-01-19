@@ -108,7 +108,7 @@
             }
         }
 
-        setInterval(draw, 30);
+        setInterval(draw, 45);
 
         
         
@@ -135,33 +135,14 @@
 
         // script placeholder
         
-        const runInput = document.querySelector('#inputText');
-        const line = '   أدخل النص القرآني هنا ......';
-        const speed = 100;
-        let i = 0;
-        let done;
-
-        function run_line() {
-            if (i++ < line.length) {
-                runInput.value = line.substring(0, i);
-            } else {
-                runInput.value = " ";
-                i = 0;
-            }
-            done = setTimeout(run_line, speed);
-        }
-        run_line();
+        
 
         const inputText = document.getElementById('inputText');
         const customAttr = inputText.getAttribute('placeholder');
 
         inputText.addEventListener('focus', function () {
-            clearTimeout(done);
-            this.value = '';
-            if (this.hasAttribute('placeholder')) {
-                this.removeAttribute('placeholder');
-            }
-        });
+    this.value = ''; // Clear the text inside the input box
+});
 
         inputText.addEventListener('blur', function () {
             this.setAttribute('placeholder', customAttr);
@@ -175,86 +156,69 @@
         }
 
 		let strippedText = '';
+		let totalAnalysis = '';
 		
-        function analyzeText() {
-            const inputText = document.getElementById('inputText').value;
-            const outputDiv = document.getElementById('output');
-            outputDiv.innerHTML = `<p dir="rtl"><span style="font-size:24px"><span style="background-color:#f1c40f"><span style="color:#2c3e50">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; ألم ن&nbsp; &nbsp; &nbsp;&nbsp;</span><span style="color:#9b59b6">&nbsp;</span></span></span></p>`;
+        // Optimized Analyze Text Function
+function analyzeText() {
+	strippedText = '';
+	totalAnalysis = '';
+    const inputText = document.getElementById('inputText').value.trim();
+    const outputDiv = document.getElementById('output');
+    let linesHtml = '';
 
-            const lines = inputText.split('\n');
-            let totalAnalysis = '';
-            
-            lines.forEach((line, index) => {
-                if (line.trim() !== '') {
-                    outputDiv.innerHTML += `<div class="input-line">القرآن: ${highlightText1(line)}</div>`;
-                    outputDiv.innerHTML += `<div class="input-line">القرآن: ${highlightText(line)}</div>`;
-                    const lineAnalysis = analyzeLine(line);
-                    outputDiv.innerHTML += `<div class="output-line">فرقان: ${lineAnalysis}</div>`;
-                    totalAnalysis += lineAnalysis + ' ';
-                    const buttonId = `copyTextBtn-${index}`;
-                    outputDiv.innerHTML += `<button class="btn copy-btn" id="${buttonId}">نسخ</button></div>`;
-                    // Attach event listener to the button
-        setTimeout(() => {
-            const copyButton = document.getElementById(buttonId);
-            copyButton.addEventListener('click', () => {
-			// Strip HTML tags from totalAnalysis
-const strippedText = totalAnalysis.replace(/<[^>]*>/g, '').trim();
-navigator.clipboard.writeText(strippedText)
-                    .catch(err => alert("Failed to copy text: " + err));
-            });
-        }, 0);
-                }
-            });
-			strippedText = totalAnalysis.replace(/<[^>]*>/g, '').trim();
+    // Process text in batches
+    const lines = inputText.split('\n');
+    lines.forEach((line, index) => {
+        if (line.trim() !== '') {
+            const highlightedLine = highlightText1(line);
+			const highlightedLine1 = highlightText(line);
+            const analyzedLine = analyzeLine(line);
 
-            const wordCount = countWords(inputText);
-            const allCharCount = countAllChars(inputText);
-            const specificCharCounts = countSpecificChars(inputText);
+            linesHtml += `
+                <div class="input-line">القرآن: ${highlightedLine}</div>
+				<div class="input-line">القرآن: ${highlightedLine1}</div>
+                <div class="output-line">فرقان: ${analyzedLine}</div>
+                <button class="btn copy-btn" id="copyTextBtn-${index}">نسخ</button>
+            `;
 
-            outputDiv.innerHTML += `<div class="counters">
-           <table id="table-7">
-        <thead>
-            <tr>
-                <th colspan="2">فرقان الهدى عروج فكري</th>
-            </tr>
-            <tr>
-                <th colspan="2">إحصائيات النص القرآني كاملا</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <th id="tasnimsaid">${wordCount}</th>
-                <th>عدد الكلمات</th>
-            </tr>
-            <tr>
-                <th id="tasnimsaid1">${allCharCount}</th>
-                <th>عدد جميع الحروف</th>
-            </tr>
-            <tr>
-                <th id="tasnimsaid2">${specificCharCounts.total}</th>
-                <th>عدد الحروف (أ، ل ، م ، ن )</th>
-            </tr>
-            <tr>
-                <th id="tasnimsaid3">${specificCharCounts.alif}</th>
-                <th>عدد حرف (أ)</th>
-            </tr>
-            <tr>
-                <th id="tasnimsaid4">${specificCharCounts.lam}</th>
-                <th>عدد حرف (ل)</th>
-            </tr>
-            <tr>
-                <th id="tasnimsaid5">${specificCharCounts.meem}</th>
-                <th>عدد حرف (م)</th>
-            </tr>
-            <tr>
-                <th id="tasnimsaid6">${specificCharCounts.noon}</th>
-                <th>عدد حرف (ر)</th>
-            </tr>
-        </tbody>
-    </table>
-
-            </div>`;
+            totalAnalysis += analyzedLine + ' ';
         }
+    });
+	strippedText = totalAnalysis.replace(/<[^>]*>/g, '').trim();
+
+    // Batch update the DOM
+    outputDiv.innerHTML = `
+        <p><span style="font-size:24px; background-color:#f1c40f; color:#2c3e50">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; ألمر&nbsp; &nbsp; &nbsp;&nbsp;</span></p>
+        ${linesHtml}
+        <div class="counters">
+            <table id="table-7">
+                <thead>
+                    <tr><th colspan="2">فرقان الهدى عروج فكري</th></tr>
+                    <tr><th colspan="2">إحصائيات النص القرآني كاملا</th></tr>
+                </thead>
+                <tbody>
+                    <tr><th>${countWords(inputText)}</th><th>عدد الكلمات</th></tr>
+                    <tr><th>${countAllChars(inputText)}</th><th>عدد جميع الحروف</th></tr>
+                    <tr><th>${countSpecificChars(inputText).total}</th><th>عدد الحروف (أ، ل ، م ، ن )</th></tr>
+					<tr><th id="tasnimsaid3">${countSpecificChars(inputText).alif}</th><th>عدد حرف (أ)</th></tr>
+					<tr><th id="tasnimsaid4">${countSpecificChars(inputText).lam}</th><th>عدد حرف (ل)</th></tr>
+					<tr><th id="tasnimsaid5">${countSpecificChars(inputText).meem}</th><th>عدد حرف (م)</th></tr>
+					<tr><th id="tasnimsaid6">${countSpecificChars(inputText).noon}</th><th>عد حرف (ن)</th></tr>
+                </tbody>
+            </table>
+        </div>
+    `;
+
+    // Attach event listeners for copy buttons
+    lines.forEach((_, index) => {
+        const button = document.getElementById(`copyTextBtn-${index}`);
+        button?.addEventListener('click', () => {
+            navigator.clipboard.writeText(totalAnalysis.trim());
+        });
+    });
+}
+
+
        
 
         function analyzeLine(line) {

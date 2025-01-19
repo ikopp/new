@@ -108,7 +108,7 @@
             }
         }
 
-        setInterval(draw, 30);
+        setInterval(draw, 45);
 
         
         // furquan el hoda content javasript
@@ -155,32 +155,14 @@
         }
         // script placeholder
         
-        const runInput = document.querySelector('#inputText');
-        const line = '   أدخل النص القرآني هنا ......';
-        const speed = 100;
-        let i = 0;
-        let done;
-
-        function run_line() {
-            if (i++ < line.length) {
-                runInput.value = line.substring(0, i);
-            } else {
-                runInput.value = " ";
-                i = 0;
-            }
-            done = setTimeout(run_line, speed);
-        }
-        run_line();
+        
 
         const inputText = document.getElementById('inputText');
         const customAttr = inputText.getAttribute('placeholder');
 
         inputText.addEventListener('focus', function () {
-            clearTimeout(done);
             this.value = '';
-            if (this.hasAttribute('placeholder')) {
-                this.removeAttribute('placeholder');
-            }
+            
         });
 
         inputText.addEventListener('blur', function () {
@@ -188,78 +170,61 @@
         });
 
         //end script place holder
-        function highlightText1(text) {
-            return text.split('').map(char => 
-                highlightChars1.includes(char) ? `<span class="highlight">${char}</span>` : char
-            ).join('');
-        }
-        function highlightText1d(text) {
-            return text.split('').map(char => 
-                highlightChars1.includes(char) ? `<span class="highlight">${char}</span>` : char
-            ).join('');
-        }
+        
 		// Declare global variables
-			let strippedText = '';  // Global variable for strippedText
-			let strippedTextd = ''; // Global variable for strippedTextd
-            let totalAnalysis = '';
-            let totalAnalysisd = '';
+		let strippedText = '';
+		let totalAnalysis = '';
+		let strippedTextd = '';
+		let totalAnalysisd = '';
+		
+        // Optimized Analyze Text Function
+function analyzeText() {
+	strippedText = '';
+	totalAnalysis = '';
+	strippedTextd = '';
+	totalAnalysisd = '';
+    const inputText = document.getElementById('inputText').value.trim();
+    const outputDiv = document.getElementById('output');
+    let linesHtml = '';
 
-		function analyzeText() {
-            const inputText = document.getElementById('inputText').value;
-            const outputDiv = document.getElementById('output');
-            outputDiv.innerHTML = `<p dir="rtl"><span style="color:#ff0099"><span style="font-size:22px"><span style="background-color:#000000">&nbsp; ألمص حم يس ألم&nbsp; &nbsp;</span></span></span></p>`;
+    // Process text in batches
+    const lines = inputText.split('\n');
+    lines.forEach((line, index) => {
+        if (line.trim() !== '') {
+            const highlightedLine = highlightText1(line);
+			const highlightedLine1 = highlightText(line);
+            const analyzedLine = analyzeLine(line);
+			const highlightedLined = highlightText1d(line);
+			const highlightedLine1d = highlightTextd(line);
+            const analyzedLined = analyzeLined(line);
 
-            const lines = inputText.split('\n');
+            linesHtml += `
+                <div class="input-line">القرآن: ${highlightedLined}</div>
+				<div class="input-line">القرآن: ${highlightedLine1d}</div>
+                <div class="output-line">فرقان: ${analyzedLined}</div>
+                <button class="btn copy-btn" id="copyTextBtnd-${index}">نسخ</button>
+            `;
 
-            
-            lines.forEach((line, index) => {
-                if (line.trim() !== '') {
-                    outputDiv.innerHTML += `<div class="input-line">القرآن: ${highlightText1d(line)}</div>`;
-                    outputDiv.innerHTML += `<div class="input-line">القرآن: ${highlightTextd(line)}</div>`;
-                    const lineAnalysisd = analyzeLined(line);
-                    outputDiv.innerHTML += `<div class="output-line">فرقان: ${lineAnalysisd}</div>`;
-                    totalAnalysisd += lineAnalysisd + ' ';
-                    const buttonIdd = `copyTextBtnd-${index}`;
-                    outputDiv.innerHTML += `<button class="btn copy-btn" id="${buttonIdd}">نسخ</button></div>`;
-                    // Attach event listener to the button
-        setTimeout(() => {
-            const copyButtond = document.getElementById(buttonIdd);
-            copyButtond.addEventListener('click', () => {
-			// Strip HTML tags from totalAnalysisd
-			strippedTextd = totalAnalysisd.replace(/<[^>]*>/g, '').trim();
-navigator.clipboard.writeText(strippedTextd)
-                    .catch(err => alert("Failed to copy text: " + err));
-            });
-        }, 0);
-                    outputDiv.innerHTML += `<div class="input-line">القرآن: ${highlightText1(line)}</div>`;
-                    outputDiv.innerHTML += `<div class="input-line">القرآن: ${highlightText(line)}</div>`;
-                    const lineAnalysis = analyzeLine(line);
-                    outputDiv.innerHTML += `<div class="output-line">فرقان: ${lineAnalysis}</div>`;
-                    totalAnalysis += lineAnalysis + ' ';
-                    const buttonId = `copyTextBtn-${index}`;
-                    outputDiv.innerHTML += `<button class="btn copy-btn" id="${buttonId}">نسخ</button></div>`;
-                    // Attach event listener to the button
-        setTimeout(() => {
-            const copyButton = document.getElementById(buttonId);
-            copyButton.addEventListener('click', () => {
-		    // Strip HTML tags from totalAnalysis
-			strippedText = totalAnalysis.replace(/<[^>]*>/g, '').trim();
-navigator.clipboard.writeText(strippedText)		
-                    .catch(err => alert("Failed to copy text: " + err));
-            });
-        }, 0);
+            totalAnalysisd += analyzedLined + ' ';
+			
+			linesHtml += `
+                <div class="input-line">القرآن: ${highlightedLine}</div>
+				<div class="input-line">القرآن: ${highlightedLine1}</div>
+                <div class="output-line">فرقان: ${analyzedLine}</div>
+                <button class="btn copy-btn" id="copyTextBtn-${index}">نسخ</button>
+            `;
 
-                }
-            });
-			strippedText = totalAnalysisd.replace(/<[^>]*>/g, '').trim();
+            totalAnalysis += analyzedLine + ' ';
+        }
+    });
+	strippedText = totalAnalysisd.replace(/<[^>]*>/g, '').trim();
 
-            const wordCount = countWords(inputText);
-            const allCharCount = countAllChars(inputText);
-            const specificCharCounts = countSpecificChars(inputText);
-
-            
-            outputDiv.innerHTML += `<div class="counters">
-           <table id="table-7">
+    // Batch update the DOM
+    outputDiv.innerHTML = `
+        <p><span style="font-size:24px; background-color:#f1c40f; color:#2c3e50">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;ألمص حم يس ألم&nbsp; &nbsp; &nbsp;&nbsp;</span></p>
+        ${linesHtml}
+        <div class="counters">
+            <table id="table-7">
         <thead>
             <tr>
                 <th colspan="2">فرقان الهدى عروج فكري</th>
@@ -270,53 +235,75 @@ navigator.clipboard.writeText(strippedText)
         </thead>
         <tbody>
             <tr>
-                <th id="tasnimsaid">${wordCount}</th>
+                <th id="tasnimsaid">${countWords(inputText)}</th>
                 <th>عدد الكلمات</th>
             </tr>
             <tr>
-                <th id="tasnimsaid1">${allCharCount}</th>
+                <th id="tasnimsaid1">${countAllChars(inputText)}</th>
                 <th>عدد جميع الحروف</th>
             </tr>
             <tr>
-                <th id="tasnimsaid2">${specificCharCounts.total}</th>
+                <th id="tasnimsaid2">${countSpecificChars(inputText).total}</th>
                 <th>عدد الحروف (أ، ل، م، ص، ح، ي، س)</th>
             </tr>
             <tr>
-                <th id="tasnimsaid3">${specificCharCounts.alif}</th>
+                <th id="tasnimsaid3">${countSpecificChars(inputText).alif}</th>
                 <th>عدد حرف (أ)</th>
             </tr>
             <tr>
-                <th id="tasnimsaid4">${specificCharCounts.lam}</th>
+                <th id="tasnimsaid4">${countSpecificChars(inputText).lam}</th>
                 <th>عدد حرف (ل)</th>
             </tr>
             <tr>
-                <th id="tasnimsaid5">${specificCharCounts.meem}</th>
+                <th id="tasnimsaid5">${countSpecificChars(inputText).meem}</th>
                 <th>عدد حرف (م)</th>
             </tr>
             <tr>
-                <th id="tasnimsaid6">${specificCharCounts.sad}</th>
+                <th id="tasnimsaid6">${countSpecificChars(inputText).sad}</th>
                 <th>عدد حرف (ص)</th>
             </tr>
                 <tr>
-        <th>${specificCharCounts.hhae}</th>
+        <th>${countSpecificChars(inputText).hhae}</th>
         <th>عدد حرف (ح)</th>
     </tr>
         <tr>
-        <th>${specificCharCounts.yaa}</th>
+        <th>${countSpecificChars(inputText).yaa}</th>
         <th>عدد حرف (ي)</th>
     </tr>
         <tr>
-        <th>${specificCharCounts.sine}</th>
+        <th>${countSpecificChars(inputText).sine}</th>
         <th>عدد حرف (س)</th>
     </tr>
         </tbody>
     </table>
+        </div>
+    `;
 
-            </div>`;
-
-    };
-	strippedText = totalAnalysisd.replace(/<[^>]*>/g, '').trim(); // Update global variable
-	inputText.addEventListener('input', analyzeText);
+    // Attach event listeners for copy buttons
+    lines.forEach((_, index) => {
+        const button = document.getElementById(`copyTextBtnd-${index}`);
+        button?.addEventListener('click', () => {
+            navigator.clipboard.writeText(totalAnalysisd.replace(/<[^>]*>/g, '').trim());
+        });
+    });
+	// Attach event listeners for copy buttons
+    lines.forEach((_, index) => {
+        const button = document.getElementById(`copyTextBtn-${index}`);
+        button?.addEventListener('click', () => {
+            navigator.clipboard.writeText(totalAnalysis.replace(/<[^>]*>/g, '').trim());
+        });
+    });
+}
+// Optimize Highlight Text Function
+function highlightText1(inputText) {
+    const regex = /[ا|أ|إ|ئ|ؤ|ء|ى|آ|ل|م|ح|ص|س|ي]/g;
+    return inputText.replace(regex, match => `<span class="highlight">${match}</span>`);
+}
+// Optimize Highlight Text Function
+function highlightText1d(inputText) {
+    const regex = /[ا|أ|إ|ئ|ؤ|ء|ى|آ|ل|م|ح|ص|س|ي]/g;
+    return inputText.replace(regex, match => `<span class="highlight">${match}</span>`);
+}
         
         function analyzeLined(line) {
             const words = line.split(' ');
