@@ -189,7 +189,7 @@ function analyzeText() {
                     <div class="input-line">القرآن: ${highlightedLine}</div>
                     <div class="input-line">القرآن: ${highlightedLine1}</div>
                     <div class="output-line">فرقان: ${analyzedLine}</div>
-                    <button class="btn copy-btn" data-analysis="${analyzedLine.trim()}">نسخ</button>
+                    <button class="btn copy-btn">نسخ</button>
                 `;
                 fragment.appendChild(container);
 
