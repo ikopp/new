@@ -219,9 +219,7 @@ function analyzeText() {
     // Clear output and start processing in batches
     outputDiv.innerHTML = `
         <p><span style="font-size:24px; background-color:#f1c40f; color:#2c3e50">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; ألمر&nbsp; &nbsp; &nbsp;&nbsp;</span></p>
-    `;
-    processLines(0, 50); // Adjust batch size for performance
-        <div class="counters">
+	<div class="counters">
             <table id="table-7">
                 <thead>
                     <tr><th colspan="2">فرقان الهدى عروج فكري</th></tr>
@@ -239,6 +237,8 @@ function analyzeText() {
             </table>
         </div>
     `;
+    processLines(0, 50); // Adjust batch size for performance
+        
 
     // Add event listeners to copy buttons
     const copyButtons = document.querySelectorAll('.copy-btn');
