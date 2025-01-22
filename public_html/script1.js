@@ -166,38 +166,61 @@ window.addEventListener('click', (event) => {
 		
         // Optimized Analyze Text Function
 function analyzeText() {
-    strippedText = '';
-    totalAnalysis = '';
     const inputText = document.getElementById('inputText').value.trim();
     const outputDiv = document.getElementById('output');
-    let linesHtml = '';
     const lines = inputText.split('\n');
+    const fragment = document.createDocumentFragment();
+    let totalAnalysis = '';
 
-    // Pre-process all lines and store them in a single string
-    lines.forEach((line, index) => {
-        if (line.trim() !== '') {
-            const highlightedLine = highlightText1(line);
-            const highlightedLine1 = highlightText(line);
-            const analyzedLine = analyzeLine(line);
+    // Debounced rendering
+    const processLines = (start, batchSize) => {
+        const end = Math.min(start + batchSize, lines.length);
 
-            linesHtml += `
-                <div class="line-container">
+        for (let i = start; i < end; i++) {
+            const line = lines[i];
+            if (line.trim() !== '') {
+                const highlightedLine = highlightText1(line);
+                const highlightedLine1 = highlightText(line);
+                const analyzedLine = analyzeLine(line);
+
+                const container = document.createElement('div');
+                container.className = 'line-container';
+                container.innerHTML = `
                     <div class="input-line">القرآن: ${highlightedLine}</div>
                     <div class="input-line">القرآن: ${highlightedLine1}</div>
                     <div class="output-line">فرقان: ${analyzedLine}</div>
-                    <button class="btn copy-btn" id="copyTextBtn-${index}">نسخ</button>
-                </div>
-            `;
-            totalAnalysis += analyzedLine + ' ';
+                    <button class="btn copy-btn" data-analysis="${analyzedLine.trim()}">نسخ</button>
+                `;
+                fragment.appendChild(container);
+
+                totalAnalysis += analyzedLine + ' ';
+            }
         }
-    });
 
-    strippedText = totalAnalysis.replace(/<[^>]*>/g, '').trim();
+        // Append the batch to the DOM
+        outputDiv.appendChild(fragment);
 
-    // Batch update the DOM with the pre-rendered HTML
+        // Process the next batch if there are more lines
+        if (end < lines.length) {
+            requestAnimationFrame(() => processLines(end, batchSize));
+        } else {
+            // All lines processed; add event delegation for copy buttons
+            outputDiv.addEventListener('click', (event) => {
+                if (event.target.classList.contains('copy-btn')) {
+                    const analysis = event.target.dataset.analysis;
+                    navigator.clipboard.writeText(analysis).then(() => {
+                        alert('Copied to clipboard!');
+                    });
+                }
+            });
+        }
+    };
+
+    // Clear output and start processing in batches
     outputDiv.innerHTML = `
         <p><span style="font-size:24px; background-color:#f1c40f; color:#2c3e50">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; ألمر&nbsp; &nbsp; &nbsp;&nbsp;</span></p>
-        ${linesHtml}
+    `;
+    processLines(0, 50); // Adjust batch size for performance
         <div class="counters">
             <table id="table-7">
                 <thead>
