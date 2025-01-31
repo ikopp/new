@@ -1,8 +1,14 @@
-{
-  "name": "audioconcat",
-  "version": "0.1.4",
-},
-{
-  "name": "express",
-  "version": "4.21.2",
+{      
+ "name": "My app",                                    
+ "version": "1.0.0",                                                    
+ "description": "First",                             
+ "main": "server.js", 
+ "scripts": {
+    start: "node server.js"
+    },                                                                                                                                                                               
+ "author": "Me", 
+ "dependencies": {
+    "express": "^4.21.1",
+    "audioconcat": "^0.1.4"
+    }                                                                                              
 }
