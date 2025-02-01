@@ -166,31 +166,37 @@ window.addEventListener('click', (event) => {
 		
         // Optimized Analyze Text Function
 function analyzeText() {
-	strippedText = '';
-	totalAnalysis = '';
     const inputText = document.getElementById('inputText').value.trim();
     const outputDiv = document.getElementById('output');
-    let linesHtml = '';
-
-    // Process text in batches
     const lines = inputText.split('\n');
-    lines.forEach((line, index) => {
-        if (line.trim() !== '') {
-            const highlightedLine = highlightText1(line);
-			const highlightedLine1 = highlightText(line);
-            const analyzedLine = analyzeLine(line);
+    const fragment = document.createDocumentFragment();
+	totalAnalysis = '';
+	strippedText = '';
 
-            linesHtml += `
-                <div class="input-line">القرآن: ${highlightedLine}</div>
-				<div class="input-line">القرآن: ${highlightedLine1}</div>
-                <div class="output-line">فرقان: ${analyzedLine}</div>
-                <button class="btn copy-btn" id="copyTextBtn-${index}">نسخ</button>
-            `;
+    // Debounced rendering
+    const processLines = (start, batchSize) => {
+        const end = Math.min(start + batchSize, lines.length);
 
-            totalAnalysis += analyzedLine + ' ';
+        for (let i = start; i < end; i++) {
+            const line = lines[i];
+            if (line.trim() !== '') {
+                const highlightedLine = highlightText1(line);
+                const highlightedLine1 = highlightText(line);
+                const analyzedLine = analyzeLine(line);
+
+                const container = document.createElement('div');
+                container.className = 'line-container';
+                container.innerHTML = `
+                    <div class="input-line">القرآن: ${highlightedLine}</div>
+                    <div class="input-line">القرآن: ${highlightedLine1}</div>
+                    <div class="output-line">فرقان: ${analyzedLine}</div>
+                    <button class="btn copy-btn">نسخ</button>
+                `;
+                fragment.appendChild(container);
+
+                totalAnalysis += analyzedLine + ' ';
+            }
         }
-    });
-	strippedText = totalAnalysis.replace(/<[^>]*>/g, '').trim();
 
         // Append the batch to the DOM
         outputDiv.appendChild(fragment);
@@ -210,6 +216,7 @@ function analyzeText() {
             });
         }
     };
+	strippedText = totalAnalysis.replace(/<[^>]*>/g, '').trim();
 
     // Clear output and start processing in batches
     outputDiv.innerHTML = `
