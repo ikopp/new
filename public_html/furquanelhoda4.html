@@ -89,8 +89,10 @@
         <textarea name="text" id="inputText"  oninput="analyzeText()" required></textarea>
         <button id="printResultBtn">طباعة النتائج</button>
         <br><br>
-        <button id="audioBtn1" onclick="generateAudio('Audio Aziz')">الاستماع بصوت عزيز</button>
-    <button id="audioBtn2" onclick="generateAudio('Audio Zakarya')">الاستماع بصوت زكريا</button>
+        <button id="audioBtn1" onclick="generateAudio1('Audio Aziz')">الاستماع بصوت عزيز (البعد الأول)</button>
+    <button id="audioBtn2" onclick="generateAudio1('Audio Zakarya')">الاستماع بصوت زكريا (البعد الأول)</button>
+    <button id="audioBtn3" onclick="generateAudio('Audio Aziz')">الاستماع بصوت عزيز (البعد الثاني)</button>
+    <button id="audioBtn4" onclick="generateAudio('Audio Zakarya')">الاستماع بصوت زكريا (البعد الثاني)</button>
         <br><br>
         <audio id="audioPlayer" controls></audio>
         <p id="status"></p>

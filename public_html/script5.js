@@ -225,7 +225,8 @@ function analyzeText() {
             totalAnalysis += analyzedLine + ' ';
         }
     });
-	strippedText = totalAnalysisd.replace(/<[^>]*>/g, '').trim();
+	strippedText = totalAnalysis.replace(/<[^>]*>/g, '').trim();
+    strippedTextd = totalAnalysisd.replace(/<[^>]*>/g, '').trim();
 
     // Batch update the DOM
     outputDiv.innerHTML = `
@@ -452,12 +453,16 @@ function highlightText1d(text) {
 
             return counts;
         }
-                audioBtn1 = document.getElementById('audioBtn1');
+        audioBtn1 = document.getElementById('audioBtn1');
 		audioBtn2 = document.getElementById('audioBtn2');
+        audioBtn3 = document.getElementById('audioBtn3');
+		audioBtn4 = document.getElementById('audioBtn4');
         async function generateAudio(library) {
 			// Disable the buttons immediately
     audioBtn1.disabled = true;
 	audioBtn2.disabled = true;
+    audioBtn3.disabled = true;
+	audioBtn4.disabled = true;
 
             if (!strippedText) {
                 alert('Please enter Arabic text.');
@@ -478,8 +483,52 @@ function highlightText1d(text) {
 					audioPlayer.addEventListener('canplaythrough', () => {
         audioBtn1.disabled = false;
         audioBtn2.disabled = false;
+        audioBtn3.disabled = false;
+        audioBtn4.disabled = false;
     });
+
+
+
                     audioPlayer.play();
+                } else {
+                    alert(data.error || 'Error generating audio.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to generate audio.');
+            }
+        }
+
+        async function generateAudio1(library) {
+			// Disable the buttons immediately
+    audioBtn1.disabled = true;
+	audioBtn2.disabled = true;
+    audioBtn3.disabled = true;
+	audioBtn4.disabled = true;
+
+            if (!strippedTextd) {
+                alert('Please enter Arabic text.');
+                return;
+            }
+
+            try {
+                const response = await fetch('/synthesize', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ strippedTextd, library })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    const audioPlayer = document.getElementById('audioPlayer');
+                    audioPlayer.src = data.output;
+					audioPlayer.addEventListener('canplaythrough', () => {
+        audioBtn1.disabled = false;
+        audioBtn2.disabled = false;
+        audioBtn3.disabled = false;
+        audioBtn4.disabled = false;
+    });
+    audioPlayer.play();
                 } else {
                     alert(data.error || 'Error generating audio.');
                 }

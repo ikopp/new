@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>المهندس الحرفي</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { height: 100%; font-family: 'Tajawal', sans-serif; }
+        body { background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); display: flex; align-items: center; justify-content: center; }
+        .container { width: 100%; max-width: 1200px; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1); }
+        h1 { text-align: center; color: #2c3e50; margin-bottom: 20px; font-size: 2rem; }
+        textarea { width: 100%; height: 150px; padding: 15px; border: 2px solid #3498db; border-radius: 10px; resize: vertical; }
+        .display-area { width: 100%; background: #f8f9fa; border-radius: 10px; margin: 20px 0; padding: 10px; display: flex; flex-direction: column; align-items: center; }
+        #currentChar { font-size: 2.5rem; color: #2c3e50; }
+        .char-image { width: 100px; height: auto; margin-top: 10px; }
+        button { padding: 12px 25px; font-size: 1rem; border: none; border-radius: 8px; background: #3498db; color: white; cursor: pointer; transition: 0.3s; }
+        button:hover { background: #2980b9; transform: translateY(-2px); }
+        #geometrycanvas43 { width: 100%; height: 200px; background-color: #f1f1f1; border-radius: 10px; box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1); direction: ltr !important; }
+        .button-group { display: flex; gap: 10px; margin: 10px 0; flex-wrap: wrap; justify-content: center; }
+        .button-group button { padding: 8px 16px; background-color: #3498db; color: white; border: none; border-radius: 5px; cursor: pointer; transition: background-color 0.3s; }
+        .button-group button:hover { background-color: #2980b9; }
+        
+        /* Animation styles */
+        @keyframes noteFloat {
+            0% { transform: translateY(0) scale(1); opacity: 1; }
+            50% { transform: translateY(-20px) scale(1.2); opacity: 0.8; }
+            100% { transform: translateY(-40px) scale(1); opacity: 0; }
+        }
+        
+        @keyframes pointPulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.5); opacity: 0.7; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        @keyframes lineGlow {
+            0% { filter: drop-shadow(0 0 2px rgba(52, 152, 219, 0.5)); }
+            50% { filter: drop-shadow(0 0 8px rgba(52, 152, 219, 0.8)); }
+            100% { filter: drop-shadow(0 0 2px rgba(52, 152, 219, 0.5)); }
+        }
+        
+        .note-symbol {
+            position: absolute;
+            font-family: 'Arial Unicode MS', sans-serif;
+            font-size: 24px;
+            pointer-events: none;
+            animation: noteFloat 1s ease-out forwards;
+        }
+        
+        .active-point {
+            animation: pointPulse 1s ease-in-out infinite;
+        }
+        
+        .active-line {
+            animation: lineGlow 1s ease-in-out infinite;
+        }
+        
+        @media (max-width: 768px) { textarea { font-size: 0.9rem; } button { font-size: 0.9rem; } h1 { font-size: 1.5rem; } }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1> هندسة الحروف النورانية القرآن الكريم الجامع الشامل (عليون) </h1>
+    <div>
+        <label>
+            <input type="checkbox" id="toggleRepeat" />
+            تفعيل تكرار الحروف بناءً على القيم(الشامل عليون)
+        </label>
+    </div>
+
+    <textarea id="textInput" placeholder="اكتب النص العربي هنا..."></textarea>
+    <div class="button-group">
+        <button onclick="changeNotesSet('عليون')">عليون</button>
+        <button onclick="changeNotesSet('شامل')">شامل</button>
+        <button onclick="changeNotesSet('فرقان(1)')">فرقان(1)</button>
+        <button onclick="changeNotesSet('فرقان(2)')">فرقان(2)</button>
+        <button onclick="changeNotesSet('فرقان(3)')">فرقان(3)</button>
+        <button onclick="changeNotesSet('فرقان(4)')">فرقان(4)</button>
+        <button onclick="changeNotesSet('فرقان(5)')">فرقان(5)</button>
+        <button onclick="changeNotesSet('فرقان(6)')">فرقان(6)</button>
+    </div>
+    <div class="button-group">
+        <button onclick="playText()" id="playButton">عزف النص</button>
+        <button onclick="downloadAudio()" id="downloadButton">تحميل الصوت</button>
+    </div>
+    <canvas id="geometrycanvas43"></canvas>
+
+    <div class="display-area" id="displayArea">
+        <div id="currentChar"></div>
+        <img id="charImage" class="char-image" src="" alt="" style="display:none;">
+    </div>
+</div>
+
+<script>
+const noteSets = {
+    
+    'عليون': {
+    'أ': { note: 'C4', tone: '8n',symbole:'',value: '13', color: 'hsl(0, 70%, 50%)', image: 'img/a.png' },  // أحمر
+            'آ': { note: 'C4', tone: '8n',symbole:'',value: '13', color: 'hsl(0, 70%, 50%)', image: 'img/a.png' }, // أحمر
+            'إ': { note: 'C4', tone: '8n',symbole:'',value: '13', color: 'hsl(0, 70%, 50%)', image: 'img/a.png' }, // أحمر
+            'ا': { note: 'C4', tone: '8n',symbole:'',value: '13', color: 'hsl(0, 70%, 50%)', image: 'img/a.png' }, // أحمر
+            'ؤ': { note: 'C4', tone: '8n',symbole:'',value: '13', color: 'hsl(0, 70%, 50%)', image: 'img/a.png' }, // أحمر
+            'ء': { note: 'C4', tone: '8n',symbole:'',value: '13', color: 'hsl(0, 70%, 50%)', image: 'img/a.png' }, // أحمر
+            'ئ': { note: 'C4', tone: '8n',symbole:'',value: '13', color: 'hsl(0, 70%, 50%)', image: 'img/a.png' }, // أحمر
+            'ى': { note: 'C4', tone: '8n',symbole:'',value: '13', color: 'hsl(0, 70%, 50%)', image: 'img/a.png' }, // أحمر
+            'ح': {note: 'A4', tone: '8n',symbole:'', note: 'A4',  tone: '8n',symbole:'', value: '7', image: 'img/h.png' , color: 'hsl(75, 70%, 50%)' },      // أخضر فاتح
+            'ر': {note: 'E5', tone: '8n',symbole:'', note: 'E5', tone: '8n',symbole:'', value: '6', image: 'img/r.png'  , color: 'hsl(60, 70%, 50%)' },      // أصفر
+
+            'س': {note: 'G5', tone: '8n',symbole:'', note: 'G5', tone: '8n',symbole:'', value: '5', image: 'img/s.png'  , color: 'hsl(20, 70%, 50%)' },      // ذهبي
+            'ص': {note: 'B5', tone: '8n',symbole:'', note: 'B5', tone: '8n',symbole:'', value: '3', image: 'img/sad.png' , color: 'hsl(300, 70%, 50%)' },     // أرجواني
+            'ط': {note: 'D6', tone: '8n',symbole:'', note: 'D6', tone: '8n',symbole:'', value: '4', image: 'img/tah.png' , color: 'hsl(360, 70%, 50%)' },     // وردي
+            'ع': {note: 'F6', tone: '8n',symbole:'', note: 'F6', tone: '8n',symbole:'', value: '2', image: 'img/aain.png', color: 'hsl(270, 70%, 50%)' },     // بنفسجي
+            'ق': {note: 'B6', tone: '8n',symbole:'', note: 'B6', tone: '8n',symbole:'', value: '2', image: 'img/qaf.png'  , color: 'hsl(150, 70%, 50%)' },     // أخضر مائل للأزرق
+
+            'ك': {note: 'C7', tone: '8n',symbole:'', note: 'C7', tone: '8n',symbole:'', value: '1', image: 'img/kaf.png' , color: 'hsl(120, 70%, 50%)' },     // أخضر
+
+            'ل': {note: 'D7', tone: '8n',symbole:'', note: 'D7', tone: '8n',symbole:'', value: '13', image: 'img/lm.png' , color: 'hsl(30, 70%, 50%)' },     // برتقالي
+            'م': {note: 'E7', tone: '8n',symbole:'', note: 'E7', tone: '8n',symbole:'', value: '17', image: 'img/mem.png' , color: 'hsl(200, 70%, 50%)' },    // أزرق فاتح
+            'ن': {note: 'F7', tone: '8n',symbole:'', note: 'F7', tone: '8n',symbole:'', value: '1', image: 'img/nun.png'  , color: 'hsl(285, 70%, 50%)' },      // بنفسجي مائل للأزرق
+            'ه': {note: 'G7', tone: '8n',symbole:'', note: 'G7', tone: '8n',symbole:'', value: '2', image: 'img/hh.png' , color: 'hsl(180, 70%, 50%)' },     // تركواز
+            'ي': {note: 'B7', tone: '8n',symbole:'', note: 'B7', tone: '8n',symbole:'', value: '2', image: 'img/ya.png' , color: 'hsl(240, 70%, 50%)' }     // أزرق
+        },
+        'شامل': {
+         
+            'أ': { note: 'C4', tone: '8n',symbole:'',value: '1', color: 'hsl(0, 70%, 50%)', image: 'img/a.png' },  // أحمر
+            'آ': { note: 'C4', tone: '8n',symbole:'',value: '1', color: 'hsl(0, 70%, 50%)', image: 'img/a.png' }, // أحمر
+            'إ': { note: 'C4', tone: '8n',symbole:'',value: '1', color: 'hsl(0, 70%, 50%)', image: 'img/a.png' }, // أحمر
+            'ا': { note: 'C4', tone: '8n',symbole:'',value: '1', color: 'hsl(0, 70%, 50%)', image: 'img/a.png' }, // أحمر
+            'ؤ': { note: 'C4', tone: '8n',symbole:'',value: '1', color: 'hsl(0, 70%, 50%)', image: 'img/a.png' }, // أحمر
+            'ء': { note: 'C4', tone: '8n',symbole:'',value: '1', color: 'hsl(0, 70%, 50%)', image: 'img/a.png' }, // أحمر
+            'ئ': { note: 'C4', tone: '8n',symbole:'',value: '1', color: 'hsl(0, 70%, 50%)', image: 'img/a.png' }, // أحمر
+            'ى': { note: 'C4', tone: '8n',symbole:'',value: '1', color: 'hsl(0, 70%, 50%)', image: 'img/a.png' }, // أحمر
+            'ح': {note: 'A4', tone: '8n',symbole:'', note: 'A4',  tone: '8n',symbole:'', value: '1', image: 'img/h.png' , color: 'hsl(75, 70%, 50%)' },      // أخضر فاتح
+            'ر': {note: 'E5', tone: '8n',symbole:'', note: 'E5', tone: '8n',symbole:'', value: '1', image: 'img/r.png'  , color: 'hsl(60, 70%, 50%)' },      // أصفر
+
+            'س': {note: 'G5', tone: '8n',symbole:'', note: 'G5', tone: '8n',symbole:'', value: '1', image: 'img/s.png'  , color: 'hsl(20, 70%, 50%)' },      // ذهبي
+            'ص': {note: 'B5', tone: '8n',symbole:'', note: 'B5', tone: '8n',symbole:'', value: '1', image: 'img/sad.png' , color: 'hsl(300, 70%, 50%)' },     // أرجواني
+            'ط': {note: 'D6', tone: '8n',symbole:'', note: 'D6', tone: '8n',symbole:'', value: '1', image: 'img/tah.png' , color: 'hsl(360, 70%, 50%)' },     // وردي
+            'ع': {note: 'F6', tone: '8n',symbole:'', note: 'F6', tone: '8n',symbole:'', value: '1', image: 'img/aain.png', color: 'hsl(270, 70%, 50%)' },     // بنفسجي
+            'ق': {note: 'B6', tone: '8n',symbole:'', note: 'B6', tone: '8n',symbole:'', value: '1', image: 'img/qaf.png'  , color: 'hsl(150, 70%, 50%)' },     // أخضر مائل للأزرق
+
+            'ك': {note: 'C7', tone: '8n',symbole:'', note: 'C7', tone: '8n',symbole:'', value: '1', image: 'img/kaf.png' , color: 'hsl(120, 70%, 50%)' },     // أخضر
+
+            'ل': {note: 'D7', tone: '8n',symbole:'', note: 'D7', tone: '8n',symbole:'', value: '1', image: 'img/lm.png' , color: 'hsl(30, 70%, 50%)' },     // برتقالي
+            'م': {note: 'E7', tone: '8n',symbole:'', note: 'E7', tone: '8n',symbole:'', value: '1', image: 'img/mem.png' , color: 'hsl(200, 70%, 50%)' },    // أزرق فاتح
+            'ن': {note: 'F7', tone: '8n',symbole:'', note: 'F7', tone: '8n',symbole:'', value: '1', image: 'img/nun.png'  , color: 'hsl(285, 70%, 50%)' },      // بنفسجي مائل للأزرق
+            'ه': {note: 'G7', tone: '8n',symbole:'', note: 'G7', tone: '8n',symbole:'', value: '1', image: 'img/hh.png' , color: 'hsl(180, 70%, 50%)' },     // تركواز
+            'ي': {note: 'B7', tone: '8n',symbole:'', note: 'B7', tone: '8n',symbole:'', value: '1', image: 'img/ya.png' , color: 'hsl(240, 70%, 50%)' }     // أزرق
+        },
+        'فرقان(1)': {
+          
+            'أ': { note: 'C4', tone: '8n',symbole:'',value: '1', color: 'hsl(0, 70%, 50%)', image: 'img/a.png' },  // أحمر
+            'آ': { note: 'C4', tone: '8n',symbole:'',value: '1', color: 'hsl(0, 70%, 50%)', image: 'img/a.png' }, // أحمر
+            'إ': { note: 'C4', tone: '8n',symbole:'',value: '1', color: 'hsl(0, 70%, 50%)', image: 'img/a.png' }, // أحمر
+            'ا': { note: 'C4', tone: '8n',symbole:'',value: '1', color: 'hsl(0, 70%, 50%)', image: 'img/a.png' }, // أحمر
+            'ؤ': { note: 'C4', tone: '8n',symbole:'',value: '1', color: 'hsl(0, 70%, 50%)', image: 'img/a.png' }, // أحمر
+            'ء': { note: 'C4', tone: '8n',symbole:'',value: '1', color: 'hsl(0, 70%, 50%)', image: 'img/a.png' }, // أحمر
+            'ئ': { note: 'C4', tone: '8n',symbole:'',value: '1', color: 'hsl(0, 70%, 50%)', image: 'img/a.png' }, // أحمر
+            'ى': { note: 'C4', tone: '8n',symbole:'',value: '1', color: 'hsl(0, 70%, 50%)', image: 'img/a.png' }, // أحمر
+            'ر': {note: 'E5', tone: '8n',symbole:'', note: 'E5', tone: '8n',symbole:'', value: '1', image: 'img/r.png'  , color: 'hsl(60, 70%, 50%)' },      // أصفر
+
+          
+            'ل': {note: 'D7', tone: '8n',symbole:'', note: 'D7', tone: '8n',symbole:'', value: '1', image: 'img/lm.png' , color: 'hsl(30, 70%, 50%)' },     // برتقالي
+            'م': {note: 'E7', tone: '8n',symbole:'', note: 'E7', tone: '8n',symbole:'', value: '1', image: 'img/mem.png' , color: 'hsl(200, 70%, 50%)' },    // أزرق فاتح
+           
+        },
+        'فرقان(2)': {
+        
+            'أ': { note: 'C4', tone: '8n',symbole:'',value: '1', color: 'hsl(0, 70%, 50%)', image: 'img/a.png' },  // أحمر
+            'آ': { note: 'C4', tone: '8n',symbole:'',value: '1', color: 'hsl(0, 70%, 50%)', image: 'img/a.png' }, // أحمر
+            'إ': { note: 'C4', tone: '8n',symbole:'',value: '1', color: 'hsl(0, 70%, 50%)', image: 'img/a.png' }, // أحمر
+            'ا': { note: 'C4', tone: '8n',symbole:'',value: '1', color: 'hsl(0, 70%, 50%)', image: 'img/a.png' }, // أحمر
+            'ؤ': { note: 'C4', tone: '8n',symbole:'',value: '1', color: 'hsl(0, 70%, 50%)', image: 'img/a.png' }, // أحمر
+            'ء': { note: 'C4', tone: '8n',symbole:'',value: '1', color: 'hsl(0, 70%, 50%)', image: 'img/a.png' }, // أحمر
+            'ئ': { note: 'C4', tone: '8n',symbole:'',value: '1', color: 'hsl(0, 70%, 50%)', image: 'img/a.png' }, // أحمر
+            'ى': { note: 'C4', tone: '8n',symbole:'',value: '1', color: 'hsl(0, 70%, 50%)', image: 'img/a.png' }, // أحمر
+            'ل': {note: 'D7', tone: '8n',symbole:'', note: 'D7', tone: '8n',symbole:'', value: '1', image: 'img/lm.png' , color: 'hsl(30, 70%, 50%)' },     // برتقالي
+            'م': {note: 'E7', tone: '8n',symbole:'', note: 'E7', tone: '8n',symbole:'', value: '1', image: 'img/mem.png' , color: 'hsl(200, 70%, 50%)' },    // أزرق فاتح
+            'ن': {note: 'F7', tone: '8n',symbole:'', note: 'F7', tone: '8n',symbole:'', value: '1', image: 'img/nun.png'  , color: 'hsl(285, 70%, 50%)' },      // بنفسجي مائل للأزرق
+
+        },
+        'فرقان(3)': {
+                 
+            'أ': { note: 'C4', tone: '8n',symbole:'',value: '8', color: 'hsl(0, 70%, 50%)', image: 'img/a.png' },  // أحمر
+            'آ': { note: 'C4', tone: '8n',symbole:'',value: '8', color: 'hsl(0, 70%, 50%)', image: 'img/a.png' }, // أحمر
+            'إ': { note: 'C4', tone: '8n',symbole:'',value: '8', color: 'hsl(0, 70%, 50%)', image: 'img/a.png' }, // أحمر
+            'ا': { note: 'C4', tone: '8n',symbole:'',value: '8', color: 'hsl(0, 70%, 50%)', image: 'img/a.png' }, // أحمر
+            'ؤ': { note: 'C4', tone: '8n',symbole:'',value: '8', color: 'hsl(0, 70%, 50%)', image: 'img/a.png' }, // أحمر
+            'ء': { note: 'C4', tone: '8n',symbole:'',value: '8', color: 'hsl(0, 70%, 50%)', image: 'img/a.png' }, // أحمر
+            'ئ': { note: 'C4', tone: '8n',symbole:'',value: '8', color: 'hsl(0, 70%, 50%)', image: 'img/a.png' }, // أحمر
+            'ى': { note: 'C4', tone: '8n',symbole:'',value: '8', color: 'hsl(0, 70%, 50%)', image: 'img/a.png' }, // أحمر
+            'ح': {note: 'A4', tone: '8n',symbole:'', note: 'A4',  tone: '8n',symbole:'', value: '4', image: 'img/h.png' , color: 'hsl(75, 70%, 50%)' },      // أخضر فاتح
+            'ر': {note: 'E5', tone: '8n',symbole:'', note: 'E5', tone: '8n',symbole:'', value: '4', image: 'img/r.png'  , color: 'hsl(60, 70%, 50%)' },      // أصفر
+            'س': {note: 'G5', tone: '8n',symbole:'', note: 'G5', tone: '8n',symbole:'', value: '4', image: 'img/s.png'  , color: 'hsl(20, 70%, 50%)' },      // ذهبي
+            'ط': {note: 'D6', tone: '8n',symbole:'', note: 'D6', tone: '8n',symbole:'', value: '4', image: 'img/tah.png' , color: 'hsl(360, 70%, 50%)' },     // وردي
+            'ع': {note: 'F6', tone: '8n',symbole:'', note: 'F6', tone: '8n',symbole:'', value: '1', image: 'img/aain.png', color: 'hsl(270, 70%, 50%)' },     // بنفسجي
+            'ق': {note: 'B6', tone: '8n',symbole:'', note: 'B6', tone: '8n',symbole:'', value: '1', image: 'img/qaf.png'  , color: 'hsl(150, 70%, 50%)' },     // أخضر مائل للأزرق
+            'ل': {note: 'D7', tone: '8n',symbole:'', note: 'D7', tone: '8n',symbole:'', value: '8', image: 'img/lm.png' , color: 'hsl(30, 70%, 50%)' },     // برتقالي
+            'م': {note: 'E7', tone: '8n',symbole:'', note: 'E7', tone: '8n',symbole:'', value: '10', image: 'img/mem.png' , color: 'hsl(200, 70%, 50%)' },    // أزرق فاتح
+            'ه': {note: 'G7', tone: '8n',symbole:'', note: 'G7', tone: '8n',symbole:'', value: '1', image: 'img/hh.png' , color: 'hsl(180, 70%, 50%)' },     // تركواز
+
+        },
+        'فرقان(4)': {
+                  
+            'أ': { note: 'C4', tone: '8n',symbole:'',value: '2', color: 'hsl(0, 70%, 50%)', image: 'img/a.png' },  // أحمر
+            'آ': { note: 'C4', tone: '8n',symbole:'',value: '2', color: 'hsl(0, 70%, 50%)', image: 'img/a.png' }, // أحمر
+            'إ': { note: 'C4', tone: '8n',symbole:'',value: '2', color: 'hsl(0, 70%, 50%)', image: 'img/a.png' }, // أحمر
+            'ا': { note: 'C4', tone: '8n',symbole:'',value: '2', color: 'hsl(0, 70%, 50%)', image: 'img/a.png' }, // أحمر
+            'ؤ': { note: 'C4', tone: '8n',symbole:'',value: '2', color: 'hsl(0, 70%, 50%)', image: 'img/a.png' }, // أحمر
+            'ء': { note: 'C4', tone: '8n',symbole:'',value: '2', color: 'hsl(0, 70%, 50%)', image: 'img/a.png' }, // أحمر
+            'ئ': { note: 'C4', tone: '8n',symbole:'',value: '2', color: 'hsl(0, 70%, 50%)', image: 'img/a.png' }, // أحمر
+            'ى': { note: 'C4', tone: '8n',symbole:'',value: '2', color: 'hsl(0, 70%, 50%)', image: 'img/a.png' }, // أحمر
+            'ح': {note: 'A4', tone: '8n',symbole:'', note: 'A4',  tone: '8n',symbole:'', value: '1', image: 'img/h.png' , color: 'hsl(75, 70%, 50%)' },      // أخضر فاتح
+            'س': {note: 'G5', tone: '8n',symbole:'', note: 'G5', tone: '8n',symbole:'', value: '1', image: 'img/s.png'  , color: 'hsl(20, 70%, 50%)' },      // ذهبي
+            'ص': {note: 'B5', tone: '8n',symbole:'', note: 'B5', tone: '8n',symbole:'', value: '1', image: 'img/sad.png' , color: 'hsl(300, 70%, 50%)' },     // أرجواني
+            'ل': {note: 'D7', tone: '8n',symbole:'', note: 'D7', tone: '8n',symbole:'', value: '2', image: 'img/lm.png' , color: 'hsl(30, 70%, 50%)' },     // برتقالي
+            'م': {note: 'E7', tone: '8n',symbole:'', note: 'E7', tone: '8n',symbole:'', value: '3', image: 'img/mem.png' , color: 'hsl(200, 70%, 50%)' },    // أزرق فاتح
+            'ي': {note: 'B7', tone: '8n',symbole:'', note: 'B7', tone: '8n',symbole:'', value: '1', image: 'img/ya.png' , color: 'hsl(240, 70%, 50%)' }     // أزرق
+
+        },
+        'فرقان(5)': {
+                  
+            'أ': { note: 'C4', tone: '8n',symbole:'',value: '1', color: 'hsl(0, 70%, 50%)', image: 'img/a.png' },  // أحمر
+            'آ': { note: 'C4', tone: '8n',symbole:'',value: '1', color: 'hsl(0, 70%, 50%)', image: 'img/a.png' }, // أحمر
+            'إ': { note: 'C4', tone: '8n',symbole:'',value: '1', color: 'hsl(0, 70%, 50%)', image: 'img/a.png' }, // أحمر
+            'ا': { note: 'C4', tone: '8n',symbole:'',value: '1', color: 'hsl(0, 70%, 50%)', image: 'img/a.png' }, // أحمر
+            'ؤ': { note: 'C4', tone: '8n',symbole:'',value: '1', color: 'hsl(0, 70%, 50%)', image: 'img/a.png' }, // أحمر
+            'ء': { note: 'C4', tone: '8n',symbole:'',value: '1', color: 'hsl(0, 70%, 50%)', image: 'img/a.png' }, // أحمر
+            'ئ': { note: 'C4', tone: '8n',symbole:'',value: '1', color: 'hsl(0, 70%, 50%)', image: 'img/a.png' }, // أحمر
+            'ى': { note: 'C4', tone: '8n',symbole:'',value: '1', color: 'hsl(0, 70%, 50%)', image: 'img/a.png' }, // أحمر
+            'ح': {note: 'A4', tone: '8n',symbole:'', note: 'A4',  tone: '8n',symbole:'', value: '2', image: 'img/h.png' , color: 'hsl(75, 70%, 50%)' },      // أخضر فاتح
+            'ر': {note: 'E5', tone: '8n',symbole:'', note: 'E5', tone: '8n',symbole:'', value: '1', image: 'img/r.png'  , color: 'hsl(60, 70%, 50%)' },      // أصفر
+            'ص': {note: 'B5', tone: '8n',symbole:'', note: 'B5', tone: '8n',symbole:'', value: '1', image: 'img/sad.png' , color: 'hsl(300, 70%, 50%)' },     // أرجواني
+            'ع': {note: 'F6', tone: '8n',symbole:'', note: 'F6', tone: '8n',symbole:'', value: '1', image: 'img/aain.png', color: 'hsl(270, 70%, 50%)' },     // بنفسجي
+            'ق': {note: 'B6', tone: '8n',symbole:'', note: 'B6', tone: '8n',symbole:'', value: '1', image: 'img/qaf.png'  , color: 'hsl(150, 70%, 50%)' },     // أخضر مائل للأزرق
+            'ك': {note: 'C7', tone: '8n',symbole:'', note: 'C7', tone: '8n',symbole:'', value: '1', image: 'img/kaf.png' , color: 'hsl(120, 70%, 50%)' },     // أخضر
+            'ل': {note: 'D7', tone: '8n',symbole:'', note: 'D7', tone: '8n',symbole:'', value: '1', image: 'img/lm.png' , color: 'hsl(30, 70%, 50%)' },     // برتقالي
+            'م': {note: 'E7', tone: '8n',symbole:'', note: 'E7', tone: '8n',symbole:'', value: '2', image: 'img/mem.png' , color: 'hsl(200, 70%, 50%)' },    // أزرق فاتح
+            'ه': {note: 'G7', tone: '8n',symbole:'', note: 'G7', tone: '8n',symbole:'', value: '1', image: 'img/hh.png' , color: 'hsl(180, 70%, 50%)' },     // تركواز
+            'ي': {note: 'B7', tone: '8n',symbole:'', note: 'B7', tone: '8n',symbole:'', value: '1', image: 'img/ya.png' , color: 'hsl(240, 70%, 50%)' }     // أزرق
+
+        },
+        'فرقان(6)': {      
+            'ص': {note: 'B5', tone: '8n',symbole:'', note: 'B5', tone: '8n',symbole:'', value: '1', image: 'img/sad.png' , color: 'hsl(300, 70%, 50%)' },     // أرجواني
+
+        }
+   
+};
+
+let notes = noteSets['عليون'];
+let visualText = '';
+
+const canvas43 = document.getElementById('geometrycanvas43');
+const ctx43 = canvas43.getContext('2d');
+const textInput = document.getElementById('textInput');
+const toggleRepeat = document.getElementById('toggleRepeat');
+const currentChar = document.getElementById('currentChar');
+const charImage = document.getElementById('charImage');
+
+// Initialize Tone.js synth
+const synth = new Tone.Synth().toDestination();
+let isPlaying = false;
+let recorder = null;
+
+function resizecanvas43() {
+    canvas43.width = canvas43.offsetWidth;
+    canvas43.height = canvas43.offsetHeight;
+    generateGeometricVisualization();
+}
+
+function generateGeometricVisualization() {
+    ctx43.clearRect(0, 0, canvas43.width, canvas43.height);
+
+    const input = textInput.value;
+    const points = [];
+
+    if (toggleRepeat.checked) {
+        visualText = '';
+        for (let char of input) {
+            if (notes[char] && notes[char].value) {
+                visualText += char.repeat(parseInt(notes[char].value));
+            } else {
+                visualText += char;
+            }
+        }
+    } else {
+        visualText = input;
+    }
+
+    for (let i = 0; i < visualText.length; i++) {
+        const char = visualText[i];
+        if (notes[char]) {
+            const x = canvas43.width - ((i + 1) * (canvas43.width / (visualText.length + 1)));
+            const y = canvas43.height - (Number(notes[char].value) * (canvas43.height / 30));
+
+            points.push({ x, y, char, note: notes[char].note });
+
+            ctx43.beginPath();
+            ctx43.arc(x, y, 8, 0, Math.PI * 2);
+            ctx43.fillStyle = notes[char].color;
+            ctx43.fill();
+
+            ctx43.fillStyle = '#000';
+            ctx43.font = '14px Tajawal';
+            ctx43.textAlign = 'center';
+            ctx43.textBaseline = 'middle';
+            ctx43.fillText(char, x, y);
+        }
+    }
+
+    if (points.length > 1) {
+        ctx43.beginPath();
+        ctx43.moveTo(points[0].x, points[0].y);
+        for (let i = 1; i < points.length; i++) {
+            ctx43.lineTo(points[i].x, points[i].y);
+        }
+        ctx43.strokeStyle = 'gray';
+        ctx43.lineWidth = 1.5;
+        ctx43.setLineDash([5, 5]);
+        ctx43.stroke();
+        ctx43.setLineDash([]);
+    }
+    
+    return points;
+}
+
+function createNoteSymbol(x, y, note) {
+    const noteSymbols = {
+        'C': '♩',
+        'D': '♪',
+        'E': '♫',
+        'F': '♬',
+        'G': '𝅗𝅥',
+        'A': '𝅘𝅥',
+        'B': '𝅘𝅥𝅮'
+    };
+    
+    const container = document.createElement('div');
+    container.className = 'note-symbol';
+    container.style.left = `${x}px`;
+    container.style.top = `${y}px`;
+    container.textContent = noteSymbols[note[0]] || '♪';
+    container.style.color = notes[currentChar.textContent]?.color || '#000';
+    
+    document.querySelector('.container').appendChild(container);
+    
+    setTimeout(() => container.remove(), 1000);
+}
+
+function highlightPoint(point) {
+    ctx43.save();
+    ctx43.beginPath();
+    ctx43.arc(point.x, point.y, 12, 0, Math.PI * 2);
+    ctx43.fillStyle = notes[point.char].color + '80';
+    ctx43.fill();
+    ctx43.restore();
+}
+
+async function playText() {
+    const playButton = document.getElementById('playButton');
+    
+    if (isPlaying) {
+        // Stop playing
+        isPlaying = false;
+        synth.disconnect();
+        if (recorder) {
+            const recording = await recorder.stop();
+            recorder = null;
+        }
+        Tone.Transport.stop();
+        Tone.Transport.cancel();
+        
+        // Reset display
+        currentChar.textContent = '';
+        charImage.style.display = 'none';
+        playButton.textContent = 'عزف النص';
+        generateGeometricVisualization();
+        return;
+    }
+    
+    isPlaying = true;
+    playButton.textContent = 'إيقاف العزف';
+    
+    // Start recording
+    recorder = new Tone.Recorder();
+    synth.connect(recorder);
+    await recorder.start();
+    
+    const text = visualText || textInput.value;
+    const delay = 0.5; // delay between notes in seconds
+    const points = generateGeometricVisualization();
+    let currentIndex = 0;
+    
+    for (let i = 0; i < text.length; i++) {
+        if (!isPlaying) break;
+        
+        const char = text[i];
+        if (notes[char]) {
+            // Display character and image
+            currentChar.textContent = char;
+            if (notes[char].image) {
+                charImage.src = notes[char].image;
+                charImage.style.display = 'block';
+            } else {
+                charImage.style.display = 'none';
+            }
+            
+            // Highlight current point and create floating note
+            const point = points[currentIndex];
+            if (point) {
+                highlightPoint(point);
+                createNoteSymbol(point.x, point.y, point.note);
+                currentIndex++;
+            }
+            
+            // Play note
+            synth.triggerAttackRelease(notes[char].note, notes[char].tone);
+            await new Promise(resolve => setTimeout(resolve, delay * 1000));
+            
+            // Redraw visualization to clear highlight
+            generateGeometricVisualization();
+        }
+    }
+    
+    if (isPlaying) {
+        // Reset display
+        currentChar.textContent = '';
+        charImage.style.display = 'none';
+        playButton.textContent = 'عزف النص';
+        isPlaying = false;
+    }
+}
+
+async function downloadAudio() {
+    if (!recorder) {
+        alert('يرجى عزف النص أولاً قبل تحميل الصوت');
+        return;
+    }
+    
+    // Stop recording and get the blob
+    const recording = await recorder.stop();
+    
+    // Create download link
+    const url = URL.createObjectURL(recording);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'musical_text.webm';
+    link.click();
+    
+    // Clean up
+    URL.revokeObjectURL(url);
+    recorder = null;
+}
+
+function changeNotesSet(setName) {
+    if (noteSets[setName]) {
+        notes = noteSets[setName];
+        generateGeometricVisualization();
+    }
+}
+
+toggleRepeat.addEventListener('change', generateGeometricVisualization);
+textInput.addEventListener('input', generateGeometricVisualization);
+window.addEventListener('resize', resizecanvas43);
+resizecanvas43();
+</script>
+</body>
+</html>

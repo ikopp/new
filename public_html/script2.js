@@ -110,17 +110,22 @@
 
         setInterval(draw, 45);
 
+                function logCharCodePoints(text) {
+    for (let char of text) {
+        console.log(`Character: ${char}, Code Point: ${char.codePointAt(0).toString(16)}`);
+    }
+}
         
         
         
         // furquan el hoda content javasript
         const highlightChars = {
-            'ا': '1', 'أ': '1', 'إ': '1', 'ئ': '1','ؤ': '1', 'ء': '1', 'ى': '1', 'آ': '1',
+            'ا': '1', 'أ': '1', 'إ': '1',  'ء': '1', 'آ': '1' , 'ٱ': '1' , 'ـٔا': '1',
             'ل': '1',
             'م': '1',
             'ن': '1'
         };
-        const highlightChars1 = ['ا', 'أ', 'إ', 'ئ','ؤ', 'ء', 'ى', 'آ', 'ل', 'م', 'ن'];
+        const highlightChars1 = ['ا', 'أ', 'إ', 'ء','آ', 'ل', 'م', 'ن' , 'ٱ' , 'ـٔا'];
 
         function highlightText(text) {
             return text.split('').map(char => {
@@ -137,7 +142,8 @@
         
         
 
-        const inputText = document.getElementById('inputText');
+        const inputTextElement = document.getElementById('inputText');
+        const inputTextValue = inputTextElement.value;
         const customAttr = inputText.getAttribute('placeholder');
 
         inputText.addEventListener('focus', function () {
@@ -163,6 +169,9 @@ function analyzeText() {
 	strippedText = '';
 	totalAnalysis = '';
     const inputText = document.getElementById('inputText').value.trim();
+    logTextDetails(inputText); // Log details for debugging
+    console.log(countSpecificChars(inputText));
+    // Rest of the analyzeText function...
     const outputDiv = document.getElementById('output');
     let linesHtml = '';
 
@@ -229,7 +238,7 @@ function analyzeText() {
         function analyzeWord(word) {
             let result = '';
             for (let char of word) {
-                if (['ا', 'ى','ء','ئ','ؤ','أ', 'إ', 'آ'].includes(char)) {
+                if (['ا', 'ى','ء','ئ','ؤ','أ', 'إ', 'آ','ٱ' , 'ـٔ'].includes(char)) {
                     result += 'ألف ';
                 } else if (char === 'ل') {
                     result += 'لام ';
@@ -249,34 +258,80 @@ function analyzeText() {
         function countAllChars(text) {
             return text.replace(/\s/g, '').length;
         }
+        function logTextDetails(text) {
+    console.log("Original Text:", text);
+    console.log("Normalized (NFC):", text.normalize('NFC'));
+    console.log("Code Points:", [...text].map(c => `${c}: ${c.codePointAt(0).toString(16)}`).join(', '));
+}
+       
 
-        function countSpecificChars(text) {
-            const counts = {
-                alif: 0,
-                lam: 0,
-                meem: 0,
-                noon: 0,
-                total: 0
-            };
+        function countSpecificChars(text) { 
+    // Normalize text to NFC for consistent encoding
+    text = text.normalize('NFC');
 
-            for (let char of text) {
-                if (['ا', 'ى','ء','ئ','ؤ','أ', 'إ', 'آ'].includes(char)) {
-                    counts.alif++;
-                    counts.total++;
-                } else if (char === 'ل') {
-                    counts.lam++;
-                    counts.total++;
-                } else if (char === 'م') {
-                    counts.meem++;
-                    counts.total++;
-                } else if (char === 'ن') {
-                    counts.noon++;
-                    counts.total++;
-                }
-            }
+    const counts = {
+        alif: 0,
+        lam: 0,
+        meem: 0,
+        noon: 0,
+        total: 0
+    };
 
-            return counts;
+     for (let i = 0; i < text.length; i++) {
+        const char = text[i];
+
+        // Debugging: Log characters for each iteration
+        console.log(`Checking char at index ${i}: ${char} (code point: ${char.codePointAt(0).toString(16)})`);
+
+        // Handle the specific sequence "ـَٔ"
+        if (char === 'ـ' && text[i + 1] === 'ٔ' && text[i + 2] === 'َ') {
+            console.log(`Found sequence "ـَٔ" at indices ${i}, ${i + 1}, ${i + 2}`);
+            counts.alif++;
+            counts.total++;
+            i += 2; // Skip the next two characters in the sequence
         }
+        // Handle the specific sequence "ـًٔ"
+        if (char === 'ـ' && text[i + 1] === 'ٔ' && text[i + 2] === 'ً') {
+            console.log(`Found sequence "ـَٔ" at indices ${i}, ${i + 1}, ${i + 2}`);
+            counts.alif++;
+            counts.total++;
+            i += 2; // Skip the next two characters in the sequence
+        }
+        // Handle "ـٔ" separately
+        else if (char === 'ـ' && text[i + 1] === 'ٔ') {
+            console.log(`Found sequence "ـٔ" at indices ${i}, ${i + 1}`);
+            counts.alif++;
+            counts.total++;
+            i++; // Skip the next character in the sequence
+        }
+        // Count other alif variants
+        else if (['ا', 'ء', 'أ', 'إ', 'آ', 'ٱ' , ' َٔ' , 'ًٔ'].includes(char)) {
+            counts.alif++;
+            counts.total++;
+        }
+        // Count lam
+        else if (char === 'ل') {
+            counts.lam++;
+            counts.total++;
+        }
+        // Count meem
+        else if (char === 'م') {
+            counts.meem++;
+            counts.total++;
+        }
+        // Count noon
+        else if (char === 'ن') {
+            counts.noon++;
+            counts.total++;
+        }
+    }
+
+    return counts;
+}
+
+
+
+
 		
         audioBtn1 = document.getElementById('audioBtn1');
 		audioBtn2 = document.getElementById('audioBtn2');
